@@ -28,6 +28,9 @@ O arquivo de configuração, localizado em 'config/tickers.json', é estruturado
   
 - **Análise de Estratégia:**
   - Utiliza uma estratégia de investimento que considera cruzamento de médias móveis, RSI e análise de volume para identificar oportunidades de investimento.
+ 
+- **Limiares Configuráveis:**
+  - Estabeleça limiares para o volume, personalizando a análise com base em suas preferências. 
 
 - **Relatórios Detalhados:**
   - Os resultados da análise são apresentados em um relatório Excel, destacando cruzamentos de médias, valores de RSI e volumes médios ao longo de um período específico.
