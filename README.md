@@ -1,5 +1,6 @@
+# **LuxScanner & Fundamentus Scraper - Análise Integrada**
 
-# **LuxScanner - Ferramenta de Análise de Ações**
+## LuxScanner - Ferramenta de Análise de Ações
 
 LuxScanner é uma ferramenta avançada em Python para análise de mercado de ações, incorporando estratégias de investimento por meio de indicadores técnicos. A ferramenta é configurada usando um arquivo JSON que oferece flexibilidade e controle sobre os ativos a serem analisados, os setores de interesse e os parâmetros de estratégia.
 
@@ -36,3 +37,31 @@ O arquivo de configuração, localizado em 'config/tickers.json', é estruturado
   - Os resultados da análise são apresentados em um relatório Excel, destacando cruzamentos de médias, valores de RSI e volumes médios ao longo de um período específico.
 
 Essa abordagem personalizável e abrangente permite que investidores ajustem facilmente a estratégia de acordo com suas preferências e objetivos financeiros. Experimente o LuxScanner para aprimorar suas decisões de investimento com análises técnicas avançadas.
+
+## Fundamentus Scraper - Análise Fundamentalista Simplificada
+
+O Fundamentus Scraper é uma ferramenta Python que simplifica a análise fundamentalista de uma lista extensa de ações brasileiras. Utilizando a biblioteca requests e pandas, a ferramenta busca automaticamente dados financeiros importantes do site Fundamentus para os tickers fornecidos.
+
+**Características Principais:**
+
+- **Lista de Ações Padrão:**
+  - O código vem pré-configurado com uma lista abrangente de tickers de ações brasileiras, abrangendo uma variedade de setores.
+  
+- **Coleta Dinâmica de Dados:**
+  - A ferramenta acessa o site Fundamentus para cada ticker, coletando informações cruciais sobre a empresa.
+  
+- **Tratamento de Dados:**
+  - Os dados coletados são organizados em um DataFrame do Pandas, tornando-os fáceis de manipular e analisar.
+  
+- **Formatação Adequada:**
+  - A ferramenta realiza a conversão e formatação adequada de dados, garantindo que os valores estejam prontos para análise.
+  
+- **Exportação para Excel:**
+  - Os resultados finais são exportados para um arquivo Excel chamado "Fundamentus.xlsx", fornecendo uma visão consolidada e organizada das métricas fundamentais das ações.
+
+**Como Usar:**
+
+1. Execute o código para realizar a coleta de dados fundamentalistas para os tickers fornecidos.
+2. O arquivo Excel resultante, "Fundamentus.xlsx", conterá informações detalhadas sobre cada empresa, facilitando análises mais aprofundadas.
+
+Este script simplifica o processo de obtenção de dados fundamentais, fornecendo uma visão rápida e organizada das métricas importantes para auxiliar nas decisões de investimento. Experimente o LuxScanner e o Fundamentus Scraper para uma análise abrangente e integrada do mercado financeiro.
