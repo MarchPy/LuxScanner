@@ -1,5 +1,7 @@
 rich
 numpy
 pandas
+openpyxl
+yfinance
 requests
 requests_cache
