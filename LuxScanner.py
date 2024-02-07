@@ -33,27 +33,26 @@ class LuxScanner:
         data = []
 
         # Coletando dados por setor
-        for sector in self.data_tickers['setores']:
-            sector_name = sector['nome']
+        for sector in self.data_tickers['sectors']:
+            sector_name = sector['name']
             status_colect = sector['status']
-            tickers = sector['ativos']
+            tickers = sector['tickers']
 
             # Verificando se foi permitido a coleta de dados dos ativos do setor
             if status_colect == "True":
                 for ticker in tickers:
-                    console.print(
-                        f"[[bold white]{time()}[/]] -> [[bold yellow]{sector_name}[/]] = [[green]Coletando dados do ativo[/]] :: {ticker}")
+                    console.print(f"[[bold blue]{time()}[/]] -> [Setor: [bold yellow]{sector_name}[/]] [[italic white]Coletando dados do ativo[/]] :: {ticker}")
                     df_yf = yf.Ticker(ticker=ticker + ".SA").history(
-                        period=self.data_tickers['intervalo de tempo']['periodo'],
-                        interval=self.data_tickers['intervalo de tempo']['intervalo']
+                        period=self.data_tickers['timeframe']['period'],
+                        interval=self.data_tickers['timeframe']['interval']
                     )
 
                     if not df_yf.empty:
                         result = self.strategy(df=df_yf)
-                        print(result)
                         if result is not None:
+                            close = round(df_yf['Close'].iloc[-1], 2)
                             crossover, rsi, volume = result
-                            data.append([ticker, sector_name, crossover, rsi, volume])
+                            data.append([ticker, close, sector_name, crossover, rsi, volume])
 
         self.save_as_file(data=data)
 
@@ -73,35 +72,29 @@ class LuxScanner:
             df['change'] = df['Close'].diff()
             df['gain'] = df.change.mask(df.change < 0, 0.0)
             df['loss'] = -df.change.mask(df.change > 0, -0.0)
-            df['avg_gain'] = rma(df.gain[period + 1:].to_numpy(), period,
-                                np.nansum(df.gain.to_numpy()[:period + 1]) / period)
-            df['avg_loss'] = rma(df.loss[period + 1:].to_numpy(), period,
-                                np.nansum(df.loss.to_numpy()[:period + 1]) / period)
+            df['avg_gain'] = rma(df.gain[period + 1:].to_numpy(), period, np.nansum(df.gain.to_numpy()[:period + 1]) / period)
+            df['avg_loss'] = rma(df.loss[period + 1:].to_numpy(), period, np.nansum(df.loss.to_numpy()[:period + 1]) / period)
             df['rs'] = df.avg_gain / df.avg_loss
             df['rsi'] = 100 - (100 / (1 + df.rs))
             rsi = round(df['rsi'][-1:].values[0], 2)
 
             # Valores dos periodos
-            short_period = self.data_tickers['cruzamento de medias']['periodo curto']
-            long_period = self.data_tickers['cruzamento de medias']['periodo longo']
+            short_period = self.data_tickers['crossover']['short period']
+            long_period = self.data_tickers['crossover']['long period']
 
             # Calculando as médias exponencial/não exponencial
-            if self.data_tickers['cruzamento de medias']['exponencial'] == "True":
-                df[f'MM_{short_period}'] = df['Close'].ewm(
-                    span=short_period).mean()
+            if self.data_tickers['crossover']['exponential'] == "True":
+                df[f'MM_{short_period}'] = df['Close'].ewm(span=short_period).mean()
                 df[f'MM_{long_period}'] = df['Close'].ewm(span=long_period).mean()
 
             else:
-                df[f'MM_{short_period}'] = df['Close'].rolling(
-                    window=short_period).mean()
-                df[f'MM_{long_period}'] = df['Close'].rolling(
-                    window=long_period).mean()
+                df[f'MM_{short_period}'] = df['Close'].rolling(window=short_period).mean()
+                df[f'MM_{long_period}'] = df['Close'].rolling(window=long_period).mean()
 
             # Identificando cruzamento
             df['Sinal'] = 0
             df.loc[df[f'MM_{short_period}'] > df[f'MM_{long_period}'], 'Sinal'] = 1
-            df.loc[df[f'MM_{short_period}'] <
-                df[f'MM_{long_period}'], 'Sinal'] = -1
+            df.loc[df[f'MM_{short_period}'] < df[f'MM_{long_period}'], 'Sinal'] = -1
 
             if df['Sinal'].iloc[-1] != df['Sinal'].iloc[-2]:
                 if df['Sinal'].iloc[-1] == 1:
@@ -116,16 +109,25 @@ class LuxScanner:
             else:
                 return
 
-    @staticmethod
-    def save_as_file(data: list):
-        columns = ['Ativo', 'Setor', 'Cruzamento', 'RSI', 'Vol. Méd. 21p']
+    def save_as_file(self, data: list):
+        save_folder = self.data_tickers['save_folder']
+        try:
+            os.mkdir(path=save_folder)
+        
+        except FileExistsError:
+            pass
+        
+        columns = ['Ativo', 'Vl. de Fechamento', 'Setor', 'Cruzamento', 'RSI', 'Vol. Méd. 21p']
         df = pd.DataFrame(data=data, columns=columns)
-        df.to_excel('Relatório de opções de investimento ({date()}).xlsx', index=False)
-
+        df.to_excel(f'{save_folder}Relatório de opções de investimento ({date()}).xlsx', index=False)
         os.system(command='cls' if os.name == 'nt' else 'clear')
         console.print(f"[[bold white]{time()}[/]] -> [[bold green]Resultado[/]]:\n\n{df if not df.empty else "[red]Tabela vázia (Nemhuma oportunidade de investimento encontrada)[/]"}\n")
 
 
 if __name__ == "__main__":
-    app = LuxScanner()
-    app.colect_data_from_json_file()
+    try:
+        app = LuxScanner()
+        app.colect_data_from_json_file()
+
+    except KeyboardInterrupt:
+        console.print('[[italic bold yellow]Processo encerrado pelo usuário!!![/]]')
