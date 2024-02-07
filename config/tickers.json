@@ -38,8 +38,8 @@
     ],
     
     "intervalo de tempo" : {
-        "periodo" : "5y",
-        "intervalo": "1wk"
+        "periodo" : "1y",
+        "intervalo": "1d"
     },
 
     "cruzamento de medias" : {
@@ -49,6 +49,6 @@
     },
 
     "rsi": 14,
-    "volume >": 500000
+    "volume >": 200000
 
 }

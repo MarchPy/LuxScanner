@@ -14,6 +14,10 @@ def time():
     return datetime.now().strftime(format='%H:%M:%S')
 
 
+def date():
+    return datetime.now().strftime(format='%d-%m-%Y')
+
+
 class LuxScanner:
     def __init__(self) -> None:
         try:
@@ -116,7 +120,7 @@ class LuxScanner:
     def save_as_file(data: list):
         columns = ['Ativo', 'Setor', 'Cruzamento', 'RSI', 'Vol. Méd. 21p']
         df = pd.DataFrame(data=data, columns=columns)
-        df.to_excel("Relatorio de ativos.xlsx", index=False)
+        df.to_excel('Relatório de opções de investimento ({date()}).xlsx', index=False)
 
         os.system(command='cls' if os.name == 'nt' else 'clear')
         console.print(f"[[bold white]{time()}[/]] -> [[bold green]Resultado[/]]:\n\n{df if not df.empty else "[red]Tabela vázia (Nemhuma oportunidade de investimento encontrada)[/]"}\n")
