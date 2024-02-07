@@ -119,10 +119,11 @@ class LuxScanner:
         
         columns = ['Ativo', 'Vl. de Fechamento', 'Setor', 'Cruzamento', 'RSI', 'Vol. Méd. 21p']
         df = pd.DataFrame(data=data, columns=columns)
-        df.to_excel(f'{save_folder}Relatório de opções de investimento ({date()}).xlsx', index=False)
         os.system(command='cls' if os.name == 'nt' else 'clear')
         console.print(f"[[bold white]{time()}[/]] -> [[bold green]Resultado[/]]:\n\n{df if not df.empty else "[red]Tabela vázia (Nemhuma oportunidade de investimento encontrada)[/]"}\n")
-
+        filename = f'{save_folder}Relatório de opções de investimento ({date()}).xlsx'
+        df.to_excel(filename, index=False)
+        console.print(f'[[bold yellow]Arquivo excel gerado com o resultado. ({filename})[/]]')
 
 if __name__ == "__main__":
     try:
