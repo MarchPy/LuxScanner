@@ -51,8 +51,8 @@ class LuxScanner:
                         result = self.strategy(df=df_yf)
                         if result is not None:
                             close = round(df_yf['Close'].iloc[-1], 2)
-                            crossover, rsi, volume = result
-                            data.append([ticker, close, sector_name, crossover, rsi, volume])
+                            crossover, rsi, volume, check_volume = result
+                            data.append([ticker, close, sector_name, crossover, rsi, volume, check_volume])
 
         self.save_as_file(data=data)
 
@@ -95,16 +95,18 @@ class LuxScanner:
             df['Sinal'] = 0
             df.loc[df[f'MM_{short_period}'] > df[f'MM_{long_period}'], 'Sinal'] = 1
             df.loc[df[f'MM_{short_period}'] < df[f'MM_{long_period}'], 'Sinal'] = -1
+            
+            check_volume = 'Sim' if df['Volume'].iloc[-1] > volume else 'Não'
 
             if df['Sinal'].iloc[-1] != df['Sinal'].iloc[-2]:
                 if df['Sinal'].iloc[-1] == 1:
-                    return ["Cruzamento de alta", rsi, volume]
+                    return ["Cruzamento de alta", rsi, volume, check_volume]
 
                 elif df['Sinal'].iloc[-1] == -1:
-                    return ["Cruzamento de baixa", rsi, volume]
+                    return ["Cruzamento de baixa", rsi, volume, check_volume]
 
                 else:
-                    return [None, rsi]
+                    return
 
             else:
                 return
@@ -117,7 +119,7 @@ class LuxScanner:
         except FileExistsError:
             pass
         
-        columns = ['Ativo', 'Vl. de Fechamento', 'Setor', 'Cruzamento', 'RSI', 'Vol. Méd. 21p']
+        columns = ['Ativo', 'Vl. de Fechamento', 'Setor', 'Cruzamento', 'RSI', 'Vol. Méd. 21p', 'Confir. Volume']
         df = pd.DataFrame(data=data, columns=columns)
         os.system(command='cls' if os.name == 'nt' else 'clear')
         console.print(f"[[bold white]{time()}[/]] -> [[bold green]Resultado[/]]:\n\n{df if not df.empty else "[red]Tabela vázia (Nemhuma oportunidade de investimento encontrada)[/]"}\n")
