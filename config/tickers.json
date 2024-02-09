@@ -44,8 +44,13 @@
 
     "crossover" : {
         "exponential" : "True",
-        "short period" : 9,
-        "long period" : 21
+        "short_period" : 9,
+        "long_period" : 21
+    },
+
+    "cycle": {
+        "short_period": 50,
+        "long_period": 200
     },
 
     "rsi": 14,
