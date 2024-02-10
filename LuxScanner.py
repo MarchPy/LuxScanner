@@ -54,15 +54,15 @@ class LuxScanner:
                     if not df_yf.empty:
                         # Coletando alguns indicadores 
                         rsi = self.rsi(df=df_yf)
-                        crossover = self.crossover(df=df_yf)
+                        crossover, volume, check_volume = self.crossover(df=df_yf)
                         cycle = self.cycle(df=df_yf)
-                        
-                        data.append([ticker, sector_name, crossover, cycle, rsi])
+                        data.append([ticker, sector_name, crossover, volume, check_volume, cycle, rsi])
         
         # Definindo o DataFrame final
-        columns = ['Ativo', 'Setor', 'Cruzamento', 'Ciclo', 'RSI']
+        columns = ['Ativo', 'Setor', 'Cruzamento', 'Volume', 'Vl. Confir.', 'Ciclo', 'RSI']
         df_final = pd.DataFrame(data=data, columns=columns)
         df_final = df_final[df_final['Cruzamento'] != '-']
+        df_final = df_final[df_final['Volume'] > self.data_tickers['volume >']]
         
         # Exibição de resultado
         os.system(command='cls' if os.name == 'nt' else 'clear')
@@ -111,18 +111,23 @@ class LuxScanner:
         df.loc[df[f'MM_{short_period}'] > df[f'MM_{long_period}'], 'Sinal'] = 1
         df.loc[df[f'MM_{short_period}'] < df[f'MM_{long_period}'], 'Sinal'] = -1
         
+        # Identificando confirmação de volume
+        last_volume = df['Volume'].iloc[-1]
+        volume_average = df['Volume'].tail(n=21).mean()
+        check_volume = True if last_volume > volume_average else False
+        
         if df['Sinal'].iloc[-1] != df['Sinal'].iloc[-2]:
             if df['Sinal'].iloc[-1] == 1:
-                return "Cruzamento de alta"
+                return "Cruzamento de alta", last_volume, check_volume 
 
             elif df['Sinal'].iloc[-1] == -1:
-                return "Cruzamento de baixa"
+                return "Cruzamento de baixa", last_volume, check_volume
 
             else:
-                return "-"
+                return "-", "-", "-"
             
         else:
-            return "-"
+            return "-", "-", "-"
     
     def cycle(self, df: pd.DataFrame):
         short_period = self.data_tickers['cycle']['short_period']
