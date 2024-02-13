@@ -58,8 +58,12 @@ class LuxScanner:
                     start_date = end_date - timedelta(days=period)
                     end_date = end_date.strftime(format='%Y-%m-%d')
                     start_date = start_date.strftime(format='%Y-%m-%d')
-
-                    df_yf = YfScraper(symbol=ticker, start_date=start_date, end_date=end_date, interval=self.config['timeframe']['interval']).collect_data()
+                    df_yf = YfScraper(
+                        symbol=ticker,
+                        start_date=start_date,
+                        end_date=end_date,
+                        interval=self.config['timeframe']['interval']
+                    ).collect_data()
 
                     # Verificando se o DataFrame não está vázio para realizar o calculo de indicadores
                     if not df_yf.empty:

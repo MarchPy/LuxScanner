@@ -17,6 +17,26 @@ class YfScraper:
             end_date=end_date
         )
 
+    def collect_data(self) -> pd.DataFrame:
+        hdr = {
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:122.0) Gecko/20100101 Firefox/122.0'
+        }
+
+        url = f"https://query1.finance.yahoo.com/v7/finance/download/{self.symbol}.SA?period1={self.start_date_timestamp}&period2={self.end_date_timestamp}&interval={self.interval}"
+        content = requests.get(url=url, headers=hdr).text
+        df = pd.read_csv(filepath_or_buffer=StringIO(initial_value=content))
+        if not df.empty:
+            console.print(f"[[bold green]Dados históricos coletados para o símbolo[/]]")
+            return df
+        
+        else:
+            if df.columns.to_list()[0] == '404 Not Found: Timestamp data missing.':
+                console.print(f"[[bold red]Dados não encontrados no período definido para o símbolo[/]]")
+            elif df.columns.to_list()[0] == '404 Not Found: No data found':
+                console.print(f"[[bold red]Dados não encontrados para o símbolo[/]]")
+
+            return df
+    
     @staticmethod
     def time():
         return datetime.now().strftime(format='%H:%M:%S')
@@ -27,22 +47,3 @@ class YfScraper:
         end_data_timestamp = int(datetime.strptime(end_date, "%Y-%m-%d").timestamp())
         return start_data_timestamp, end_data_timestamp
 
-    def collect_data(self) -> pd.DataFrame:
-        hdr = {
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:122.0) Gecko/20100101 Firefox/122.0'
-        }
-
-        url = f"https://query1.finance.yahoo.com/v7/finance/download/{self.symbol}.SA?period1={self.start_date_timestamp}&period2={self.end_date_timestamp}&interval={self.interval}"
-        content = requests.get(url=url, headers=hdr).text
-        df = pd.read_csv(filepath_or_buffer=StringIO(initial_value=content))
-        if not df.empty:
-            console.print(f" [[bold green]Dados históricos coletados para o símbolo[/]]")
-            return df
-        
-        else:
-            if df.columns.to_list()[0] == '404 Not Found: Timestamp data missing.':
-                console.print(f" [[bold red]Dados não encontrados no período definido para o símbolo[/]]")
-            elif df.columns.to_list()[0] == '404 Not Found: No data found':
-                console.print(f" [[bold red]Dados não encontrados para o símbolo[/]]")
-
-            return df
