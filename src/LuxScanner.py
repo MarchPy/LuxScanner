@@ -1,9 +1,8 @@
 import os
 import json
-import YfScraper
 import numpy as np
 import pandas as pd
-from sys import argv
+from src.YfScraper import YfScraper
 from datetime import datetime, timedelta
 from rich.console import Console
 
@@ -44,7 +43,7 @@ class LuxScanner:
             # Verificando se foi permitido a coleta de dados dos ativos do setor
             if status_colect == "True":
                 for ticker in tickers:
-                    console.print(f"[[bold blue]{time()}[/]] -> [Setor: [bold yellow]{sector_name}[/]] [[italic white]Coletando dados do ativo[/]] :: {ticker}")
+                    console.print(f"[[bold blue]{time()}[/]] -> [Setor: [bold yellow]{sector_name}[/]] [[italic white]Coletando dados do ativo[/]] :: {ticker} :: ", end='')
 
                     year_days = 365
                     mounth_days = 30
@@ -60,8 +59,7 @@ class LuxScanner:
                     end_date = end_date.strftime(format='%Y-%m-%d')
                     start_date = start_date.strftime(format='%Y-%m-%d')
 
-                    df_yf = YfScraper.YfScraper(symbol=ticker, start_date=start_date, end_date=end_date, interval=self.config['timeframe']['interval']).collect_data()
-             
+                    df_yf = YfScraper(symbol=ticker, start_date=start_date, end_date=end_date, interval=self.config['timeframe']['interval']).collect_data()
 
                     # Verificando se o DataFrame não está vázio para realizar o calculo de indicadores
                     if not df_yf.empty:
@@ -180,12 +178,3 @@ class LuxScanner:
         filename = f'{save_folder}Relatório de opções de investimento ({date()}).xlsx'
         df.to_excel(filename, index=False)
         console.print(f'[[bold yellow]Arquivo excel gerado com o resultado. ([white]{filename}[/])[/]]')
-
-
-if __name__ == "__main__":
-    try:        
-        app = LuxScanner()
-        app.colect_data_from_json_file(save_file=True if len(argv) > 1 and argv[1] == '-s' else False)
-
-    except KeyboardInterrupt:
-        console.print('[[italic bold yellow]Processo encerrado pelo usuário!!![/]]')

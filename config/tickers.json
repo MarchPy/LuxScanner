@@ -45,7 +45,7 @@
     "timeframe" : {
         "period" : {
             "type": "y",
-            "value": 1
+            "value": 5
         },
         "interval": "1d"
     },

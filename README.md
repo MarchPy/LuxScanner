@@ -40,10 +40,10 @@ O arquivo de configuração, localizado em 'config/tickers.json', é estruturado
 
 **Para salvar o resultado em um arquivo execute o programa utilizando o parâmetro** `-s`
 
-Exemplo: 
+Exemplo:
 
 ```bash
-python3 LuxScanner.py -s
+python3 run.py -s
 ```
 
 Essa abordagem personalizável e abrangente permite que investidores ajustem facilmente a estratégia de acordo com suas preferências e objetivos financeiros. Experimente o LuxScanner para aprimorar suas decisões de investimento com análises técnicas avançadas.

@@ -1,6 +1,5 @@
 import requests
 import pandas as pd
-from sys import argv
 from io import StringIO
 from datetime import datetime
 from rich.console import Console
@@ -37,11 +36,13 @@ class YfScraper:
         content = requests.get(url=url, headers=hdr).text
         df = pd.read_csv(filepath_or_buffer=StringIO(initial_value=content))
         if not df.empty:
-            console.print(f"[{YfScraper.time()}] -> [[bold green]Dados históricos coletados para o símbolo[/]] :: {self.symbol}")
+            console.print(f" [[bold green]Dados históricos coletados para o símbolo[/]]")
             return df
         
         else:
             if df.columns.to_list()[0] == '404 Not Found: Timestamp data missing.':
-                console.print(f"[{YfScraper.time()}] -> [[bold red]Dados não encontrados no período definido para o símbolo[/]] :: {self.symbol}")
+                console.print(f" [[bold red]Dados não encontrados no período definido para o símbolo[/]]")
             elif df.columns.to_list()[0] == '404 Not Found: No data found':
-                console.print(f"[{YfScraper.time()}] -> [[bold red]Dados não encontrados para o símbolo[/]] :: {self.symbol}")
+                console.print(f" [[bold red]Dados não encontrados para o símbolo[/]]")
+
+            return df
