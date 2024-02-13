@@ -1,10 +1,10 @@
 import os
 import json
+import YfScraper
 import numpy as np
 import pandas as pd
-import yfinance as yf
 from sys import argv
-from datetime import datetime
+from datetime import datetime, timedelta
 from rich.console import Console
 
 
@@ -26,7 +26,7 @@ class LuxScanner:
         try:
             # Abrindo o arquivo json com os dados
             with open(file='config/tickers.json', mode='r', encoding='utf-8') as file_obj:
-                self.data_tickers = json.load(file_obj)
+                self.config = json.load(file_obj)
 
         except FileNotFoundError:
             pass
@@ -36,7 +36,7 @@ class LuxScanner:
         data = []
 
         # Coletando dados por setor
-        for sector in self.data_tickers['sectors']:
+        for sector in self.config['sectors']:
             sector_name = sector['name']
             status_colect = sector['status']
             tickers = sector['tickers']
@@ -45,10 +45,23 @@ class LuxScanner:
             if status_colect == "True":
                 for ticker in tickers:
                     console.print(f"[[bold blue]{time()}[/]] -> [Setor: [bold yellow]{sector_name}[/]] [[italic white]Coletando dados do ativo[/]] :: {ticker}")
-                    df_yf = yf.Ticker(ticker=ticker + ".SA").history(
-                        period=self.data_tickers['timeframe']['period'],
-                        interval=self.data_tickers['timeframe']['interval']
-                    )
+
+                    year_days = 365
+                    mounth_days = 30
+                    period = self.config['timeframe']['period']['type']
+                    if period == "y":
+                        period = year_days * self.config['timeframe']['period']['value']
+
+                    elif period == "m":
+                        period = mounth_days * self.config['timeframe']['period']['value']
+                    
+                    end_date = datetime.now()
+                    start_date = end_date - timedelta(days=period)
+                    end_date = end_date.strftime(format='%Y-%m-%d')
+                    start_date = start_date.strftime(format='%Y-%m-%d')
+
+                    df_yf = YfScraper.YfScraper(symbol=ticker, start_date=start_date, end_date=end_date, interval=self.config['timeframe']['interval']).collect_data()
+             
 
                     # Verificando se o DataFrame não está vázio para realizar o calculo de indicadores
                     if not df_yf.empty:
@@ -56,13 +69,13 @@ class LuxScanner:
                         rsi = self.rsi(df=df_yf)
                         crossover, volume, check_volume = self.crossover(df=df_yf)
                         cycle = self.cycle(df=df_yf)
-                        data.append([ticker, sector_name, crossover, volume, check_volume, cycle, rsi])
+                        data.append([ticker, sector_name, crossover, cycle, volume, check_volume, rsi])
         
         # Definindo o DataFrame final
-        columns = ['Ativo', 'Setor', 'Cruzamento', 'Volume', 'Vl. Confir.', 'Ciclo', 'RSI']
+        columns = ['Ativo', 'Setor', 'Cruzamento', 'Ciclo', 'Volume', 'Confir. Volum.', 'RSI']
         df_final = pd.DataFrame(data=data, columns=columns)
         df_final = df_final[df_final['Cruzamento'] != '-']
-        df_final = df_final[df_final['Volume'] > self.data_tickers['volume >']]
+        df_final = df_final[df_final['Volume'] > self.config['volume >']]
         
         # Exibição de resultado
         os.system(command='cls' if os.name == 'nt' else 'clear')
@@ -72,8 +85,8 @@ class LuxScanner:
             self.save_as_file(df=df_final)
 
     def rsi(self, df: pd.DataFrame):
-        # Calculando RSI
-        period = self.data_tickers['rsi']
+
+        period = self.config['rsi']
 
         def rma(x, n, y0):
             a = (n - 1) / n
@@ -89,16 +102,16 @@ class LuxScanner:
         df['rs'] = df.avg_gain / df.avg_loss
         df['rsi'] = 100 - (100 / (1 + df.rs))
         rsi = round(df['rsi'][-1:].values[0], 2)
-        
+       
         return rsi
     
     def crossover(self, df: pd.DataFrame):
         # Valores dos periodos
-        short_period = self.data_tickers['crossover']['short_period']
-        long_period = self.data_tickers['crossover']['long_period']
+        short_period = self.config['crossover']['short_period']
+        long_period = self.config['crossover']['long_period']
 
         # Calculando as médias exponencial/não exponencial
-        if self.data_tickers['crossover']['exponential'] == "True":
+        if self.config['crossover']['exponential'] == "True":
             df[f'MM_{short_period}'] = df['Close'].ewm(span=short_period).mean()
             df[f'MM_{long_period}'] = df['Close'].ewm(span=long_period).mean()
 
@@ -130,8 +143,8 @@ class LuxScanner:
             return "-", "-", "-"
     
     def cycle(self, df: pd.DataFrame):
-        short_period = self.data_tickers['cycle']['short_period']
-        long_period = self.data_tickers['cycle']['long_period']
+        short_period = self.config['cycle']['short_period']
+        long_period = self.config['cycle']['long_period']
             
         # Calculando as médias móveis simples
         df[f'SMA_{short_period}'] = df['Close'].rolling(window=short_period).mean()
@@ -157,7 +170,7 @@ class LuxScanner:
         
     def save_as_file(self, df: pd.DataFrame):
         # Criando a pasta onde seram salvos os arquivos
-        save_folder = self.data_tickers['save_folder']
+        save_folder = self.config['save_folder']
         try:
             os.mkdir(path=save_folder)
         

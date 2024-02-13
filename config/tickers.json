@@ -3,42 +3,50 @@
         {
             "name": "Bancos",
             "status": "True",
-            "tickers": ["ABCB4", "BAZA3", "BBAS3", "BBDC3", "BBDC4", "BEES3", "BEES4", "BGIP3", "BGIP4", "BIDI11", "BIDI3", "BIDI4", "BMEB3", "BMEB4", "BMGB4", "BMIN3", "BMIN4", "BNBR3", "BPAC11", "BPAC3", "BPAC5", "BPAN4", "BPAR3", "BPAT33", "BRBI11", "BRIV3", "BRIV4", "BRSR3", "BRSR5", "BRSR6", "BSLI3", "BSLI4", "IDVL3", "IDVL4", "ITSA3", "ITSA4", "ITUB3", "ITUB4", "MODL11", "MODL3", "MODL4", "PINE3", "PINE4", "RPAD3", "RPAD5", "RPAD6", "SANB11", "SANB3", "SANB4"]
+            "tickers": ["BBAS3", "BBDC3", "BBDC4", "ITSA3", "ITSA4", "ITUB3", "ITUB4", "SANB3", "SANB4"]
         },
         {
             "name": "Mineração",
             "status": "True",
-            "tickers": ["VALE3", "BRAP3", "BRAP4", "CBAV3", "CCXC3", "CMIN3", "MMXM3"]
+            "tickers": ["VALE3", "BRAP3", "BRAP4", "CMIN3"]
         },
         {
             "name": "Energia Elétrica",
             "status": "True",
-            "tickers": ["AESB3", "AFLT3", "ALUP11", "ALUP3", "ALUP4", "AURE3", "CBEE3", "CEBR3", "CEBR5", "CEBR6", "CEEB3", "CEEB5", "CEED3", "CEED4", "CEPE3", "CEPE5", "CEPE6", "CESP3", "CESP5", "CESP6", "CLSC3", "CLSC4", "CMIG3", "CMIG4", "COCE3", "COCE5", "COCE6", "CPFE3", "CPLE11", "CPLE3", "CPLE5", "CPLE6", "CPRE3", "CSRN3", "CSRN5", "CSRN6", "EEEL3", "EEEL4", "EGIE3", "EKTR3", "EKTR4", "ELET3", "ELET5", "ELET6", "ELPL3", "EMAE4", "ENBR3", "ENEV3", "ENGI11", "ENGI3", "ENGI4", "ENMT3", "ENMT4", "EQPA3", "EQPA5", "EQPA6", "EQPA7", "EQTL3", "GEPA3", "GEPA4", "GPAR3", "LIGT3", "LIPR3", "NEOE3", "OMGE3", "POWE3", "REDE3", "RNEW11", "RNEW3", "RNEW4", "SRNA3", "TAEE11", "TAEE3", "TAEE4", "TIET11", "TIET3", "TIET4", "TRPL3", "TRPL4"]
+            "tickers": ["CPLE3", "CPLE5", "CPLE6", "ELET3", "ELET5", "ELET6", "TAEE3", "TAEE4", "TAEE11", "REDE3", "CMIG3", "CMIG4"]
         },
         {
             "name": "Água e Saneamento",
             "status": "True",
-            "tickers": ["AMBP3", "CASN3", "CSMG3", "ORVR3", "SAPR11", "SAPR3", "SAPR4", "SBSP3"]
+            "tickers": ["SAPR3", "SAPR4", "SAPR11", "SBSP3", "CSMG3"]
         },
         {
             "name": "Petróleo, Gás e Biocombustíveis",
             "status": "True",
-            "tickers": ["CSAN3", "DMMO3", "ENAT3", "LUPA3", "OGXP3", "OPCT3", "OSXB3", "PETR3", "PETR4", "PRIO3", "RAIZ4", "RECV3", "RPMG3", "RRRP3", "UGPA3", "VBBR3"]
+            "tickers": ["UGPA3", "ENAT3", "PETR4", "PETR3", "RAIZ4"]
         },
         {
             "name": "Siderurgia e Metalurgia",
             "status": "True",
-            "tickers": ["CSNA3", "FBMC3", "FBMC4", "FESA3", "FESA4", "GGBR3", "GGBR4", "GOAU3", "GOAU4", "MGEL3", "MGEL4", "PATI3", "PATI4", "PMAM3", "TKNO4", "USIM3", "USIM5", "USIM6"]
+            "tickers": ["USIM3", "USIM5", "USIM6", "GGBR3", "GGBR4", "GOAU3", "GOAU4"]
         },
         {
             "name": "Químicos",
             "status": "True",
-            "tickers": ["BRKM3", "BRKM5", "BRKM6", "CRPG3", "CRPG5", "CRPG6", "DEXP3", "DEXP4", "ELEK3", "ELEK4", "FHER3", "NUTR3", "UNIP3", "UNIP5", "UNIP6", "VITT3"]
+            "tickers": ["UNIP3", "UNIP6", "BRKM3", "BRKM5", "BRKM6", "NUTR3"]
+        },
+        {
+            "name": "Madeira e Papel",
+            "status": "True",
+            "tickers": ["KLBN3", "KLBN4", "KLBN11", "SUZB3", "RANI3"]
         }
     ],
-    
+
     "timeframe" : {
-        "period" : "1y",
+        "period" : {
+            "type": "y",
+            "value": 1
+        },
         "interval": "1d"
     },
 
