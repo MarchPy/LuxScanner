@@ -24,11 +24,11 @@ class LuxScanner:
     def __init__(self) -> None:
         try:
             # Abrindo o arquivo json com os dados
-            with open(file='config/tickers.json', mode='r', encoding='utf-8') as file_obj:
+            with open(file='config/settings.json', mode='r', encoding='utf-8') as file_obj:
                 self.config = json.load(file_obj)
 
         except FileNotFoundError:
-            pass
+            console.print(f"[[bold red]Arquivo de configuração não encontrado.[/]]")
 
     def colect_data_from_json_file(self, save_file=False):
         # Resultado final
@@ -38,12 +38,12 @@ class LuxScanner:
         for sector in self.config['sectors']:
             sector_name = sector['name']
             status_colect = sector['status']
-            tickers = sector['tickers']
+            symbols = sector['symbols']
 
             # Verificando se foi permitido a coleta de dados dos ativos do setor
             if status_colect == "True":
-                for ticker in tickers:
-                    console.print(f"[[bold blue]{time()}[/]] -> [Setor: [bold yellow]{sector_name}[/]] [[italic white]Coletando dados do ativo[/]] :: {ticker} :: ", end='')
+                for symbol in symbols:
+                    console.print(f"[[bold blue]{time()}[/]] -> [Setor: [bold yellow]{sector_name}[/]] [[italic white]Coletando dados do ativo[/]] :: {symbol} :: ", end='')
 
                     year_days = 365
                     mounth_days = 30
@@ -59,7 +59,7 @@ class LuxScanner:
                     end_date = end_date.strftime(format='%Y-%m-%d')
                     start_date = start_date.strftime(format='%Y-%m-%d')
                     df_yf = YfScraper(
-                        symbol=ticker,
+                        symbol=symbol,
                         start_date=start_date,
                         end_date=end_date,
                         interval=self.config['timeframe']['interval']
@@ -71,7 +71,7 @@ class LuxScanner:
                         rsi = self.rsi(df=df_yf)
                         crossover, volume, check_volume = self.crossover(df=df_yf)
                         cycle = self.cycle(df=df_yf)
-                        data.append([ticker, sector_name, crossover, cycle, volume, check_volume, rsi])
+                        data.append([symbol, sector_name, crossover, cycle, volume, check_volume, rsi])
         
         # Definindo o DataFrame final
         columns = ['Ativo', 'Setor', 'Cruzamento', 'Ciclo', 'Volume', 'Confir. Volum.', 'RSI']
@@ -179,6 +179,6 @@ class LuxScanner:
         except FileExistsError:
             pass
         
-        filename = f'{save_folder}Relatório de opções de investimento ({date()}).xlsx'
+        filename = f'{save_folder}/Relatório de opções de investimento ({date()}).xlsx'
         df.to_excel(filename, index=False)
         console.print(f'[[bold yellow]Arquivo excel gerado com o resultado. ([white]{filename}[/])[/]]')

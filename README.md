@@ -38,16 +38,6 @@ O arquivo de configuração, localizado em 'config/tickers.json', é estruturado
 
   - Os resultados da análise são apresentados em um relatório Excel, destacando cruzamentos de médias, valores de RSI e volumes médios ao longo de um período específico.
 
-**Para salvar o resultado em um arquivo execute o programa utilizando o parâmetro** `-s`
-
-Exemplo:
-
-```bash
-python3 run.py -s
-```
-
-Essa abordagem personalizável e abrangente permite que investidores ajustem facilmente a estratégia de acordo com suas preferências e objetivos financeiros. Experimente o LuxScanner para aprimorar suas decisões de investimento com análises técnicas avançadas.
-
 ## Fundamentus Scraper - Análise Fundamentalista Simplificada
 
 O Fundamentus Scraper é uma ferramenta Python que simplifica a análise fundamentalista de uma lista extensa de ações brasileiras. Utilizando a biblioteca requests e pandas, a ferramenta busca automaticamente dados financeiros importantes do site Fundamentus para os tickers fornecidos.
@@ -70,9 +60,36 @@ O Fundamentus Scraper é uma ferramenta Python que simplifica a análise fundame
 
   - Os resultados finais são exportados para um arquivo Excel chamado "Fundamentus.xlsx", fornecendo uma visão consolidada e organizada das métricas fundamentais das ações.
 
-**Como Usar:**
-
-1. Execute o código para realizar a coleta de dados fundamentalistas para os tickers fornecidos.
-2. O arquivo Excel resultante, "Fundamentus.xlsx", conterá informações detalhadas sobre cada empresa, facilitando análises mais aprofundadas.
-
 Este script simplifica o processo de obtenção de dados fundamentais, fornecendo uma visão rápida e organizada das métricas importantes para auxiliar nas decisões de investimento. Experimente o LuxScanner e o Fundamentus Scraper para uma análise abrangente e integrada do mercado financeiro.
+
+
+# Como usar:
+
+## LuxScanner
+
+Para execução do programa ***LuxScanner*,** basta executar o seguinte comando:
+
+```
+python3 run.py
+```
+
+Para salvar o resultado em formato `.xlsx`, você pode adicionar o parâmetro `-s`, exemplo:
+
+```
+python3 run.py -s
+```
+
+
+## Fundamentus Scraper
+
+Para execução do ***Fundamentus Scraper***, basta executar o seguinte comando adicionando o parâmetro `--fundamentus` :
+
+```
+python3 run.py --fundamentus
+```
+
+Para salvar o resultado em formato `.xlsx`, você pode adicionar o parâmetro `-s`, exemplo:
+
+```
+python3 run.py --fundamentus -s
+```
