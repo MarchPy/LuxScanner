@@ -2,9 +2,9 @@ import os
 import json
 import numpy as np
 import pandas as pd
+from rich.console import Console
 from src.YfScraper import YfScraper
 from datetime import datetime, timedelta
-from rich.console import Console
 
 
 console = Console()
