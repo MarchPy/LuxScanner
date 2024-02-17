@@ -101,6 +101,9 @@ class Main:
         if save_file:
             self.save_as_file(df=df_fundamentus)
 
+        else:
+            print(df_fundamentus)
+
     def save_as_file(self, df: pd.DataFrame):
         # Criando a pasta onde seram salvos os arquivos
         save_folder = self.config['save_folder']
