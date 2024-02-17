@@ -62,8 +62,16 @@ O Fundamentus Scraper é uma ferramenta Python que simplifica a análise fundame
 
 Este script simplifica o processo de obtenção de dados fundamentais, fornecendo uma visão rápida e organizada das métricas importantes para auxiliar nas decisões de investimento. Experimente o LuxScanner e o Fundamentus Scraper para uma análise abrangente e integrada do mercado financeiro.
 
-
 # Como usar:
+
+Primeiramente você deve instalar todas as dependências necessárias da seguinte forma:
+
+```
+python -m pip install requirements.txt
+```
+
+
+
 
 ## LuxScanner
 
@@ -78,7 +86,6 @@ Para salvar o resultado em formato `.xlsx`, você pode adicionar o parâmetro `-
 ```
 python3 run.py -s
 ```
-
 
 ## Fundamentus Scraper
 

@@ -9,13 +9,13 @@ console = Console()
 
 if __name__ == "__main__":
     try: 
-        if len(argv) > 1 and argv[1] == "--fundamentus":
+        if len(argv) > 1 and "--fundamentus" in argv:
             app = Main()
-            app.main(save_file=True if len(argv) > 1 and argv[2] == '-s' else False)
+            app.main(save_file=True if len(argv) > 1 and '-s' in argv else False)
 
         else:
             app = LuxScanner()
-            app.colect_data_from_json_file(save_file=True if len(argv) > 1 and argv[1] == '-s' else False)
+            app.colect_data_from_json_file(save_file=True if len(argv) > 1 and '-s' in argv else False)
 
     except KeyboardInterrupt:
         console.print('[[italic bold yellow]Processo encerrado pelo usuário!!![/]]')
