@@ -12,16 +12,18 @@ console = Console()
 
 
 class FundamentusScraper:
-    def __init__(self):
+    def __init__(self) -> None:
         self.console = Console()
 
-    def time(self):
+    @staticmethod
+    def time() -> str:
         return datetime.now().strftime(format='%H:%M:%S')
 
-    def date(self):
+    @staticmethod
+    def date() -> str:
         return datetime.now().strftime(format='%d-%m-%Y')
 
-    def fundamentus(self, symbols: list):
+    def fundamentus(self, symbols: list) -> pd.DataFrame:
         df_fundamentus = pd.DataFrame()
 
         hdr = {
@@ -82,7 +84,7 @@ class FundamentusScraper:
 
 
 class Main:
-    def __init__(self):
+    def __init__(self) -> None:
         try:
             # Abrindo o arquivo json com os dados
             with open(file='config/settings.json', mode='r', encoding='utf-8') as file_obj:
@@ -93,7 +95,7 @@ class Main:
         except FileNotFoundError:
             console.print(f"[[bold red]Arquivo de configuração não encontrado.[/]]")
 
-    def main(self, save_file=False):
+    def main(self, save_file=False) -> None:
         symbols = self.config['base_symbols']
 
         df_fundamentus = self.scraper.fundamentus(symbols=symbols)
@@ -104,7 +106,7 @@ class Main:
         else:
             print(df_fundamentus)
 
-    def save_as_file(self, df: pd.DataFrame):
+    def save_as_file(self, df: pd.DataFrame) -> None:
         # Criando a pasta onde seram salvos os arquivos
         save_folder = self.config['save_folder']
         try:

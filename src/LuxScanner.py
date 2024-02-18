@@ -10,84 +10,61 @@ from datetime import datetime, timedelta
 console = Console()
 
 
-# Função para retornar o horário atual
-def time():
-    return datetime.now().strftime(format='%H:%M:%S')
-
-
-# Função para retornar a data atual
-def date():
-    return datetime.now().strftime(format='%d-%m-%Y')
-
-
 class LuxScanner:
     def __init__(self) -> None:
         try:
-            # Abrindo o arquivo json com os dados
             with open(file='config/settings.json', mode='r', encoding='utf-8') as file_obj:
                 self.config = json.load(file_obj)
-
         except FileNotFoundError:
             console.print(f"[[bold red]Arquivo de configuração não encontrado.[/]]")
 
-    def colect_data_from_json_file(self, save_file=False):
-        # Resultado final
-        data = []
+    @staticmethod
+    def time() -> str:
+        return datetime.now().strftime(format='%H:%M:%S')
 
-        # Coletando dados por setor
+    @staticmethod
+    def date() -> str:
+        return datetime.now().strftime(format='%d-%m-%Y')
+
+    def collect_data_from_json_file(self, save_file=False) -> None:
+        data = []
         for sector in self.config['sectors']:
             sector_name = sector['name']
-            status_colect = sector['status']
+            status_collect = sector['status']
             symbols = sector['symbols']
-
-            # Verificando se foi permitido a coleta de dados dos ativos do setor
-            if status_colect == "True":
+            if status_collect == "True":
                 for symbol in symbols:
-                    console.print(f"[[bold blue]{time()}[/]] -> [Setor: [bold yellow]{sector_name}[/]] [[italic white]Coletando dados do ativo[/]] :: {symbol} :: ", end='')
-
-                    year_days = 365
-                    mounth_days = 30
-                    period = self.config['timeframe']['period']['type']
-                    if period == "y":
-                        period = year_days * self.config['timeframe']['period']['value']
-
-                    elif period == "m":
-                        period = mounth_days * self.config['timeframe']['period']['value']
-                    
-                    end_date = datetime.now()
-                    start_date = end_date - timedelta(days=period)
-                    end_date = end_date.strftime(format='%Y-%m-%d')
-                    start_date = start_date.strftime(format='%Y-%m-%d')
-                    df_yf = YfScraper(
-                        symbol=symbol,
-                        start_date=start_date,
-                        end_date=end_date,
-                        interval=self.config['timeframe']['interval']
-                    ).collect_data()
-
-                    # Verificando se o DataFrame não está vázio para realizar o calculo de indicadores
+                    console.print(f"[[bold blue]{self.time()}[/]] -> [Setor: [bold yellow]{sector_name}[/]] [[italic white]Coletando dados do ativo[/]] :: {symbol} :: ", end='')
+                    df_yf = self.collect_data_for_symbol(symbol)
                     if not df_yf.empty:
-                        # Coletando alguns indicadores 
-                        rsi = self.rsi(df=df_yf)
-                        crossover, volume, check_volume = self.crossover(df=df_yf)
-                        cycle = self.cycle(df=df_yf)
+                        rsi = self.calculate_rsi(df=df_yf)
+                        crossover, volume, check_volume = self.calculate_crossover(df=df_yf)
+                        cycle = self.calculate_cycle(df=df_yf)
                         data.append([symbol, sector_name, crossover, cycle, volume, check_volume, rsi])
-        
-        # Definindo o DataFrame final
-        columns = ['Ativo', 'Setor', 'Cruzamento', 'Ciclo', 'Volume', 'Confir. Volum.', 'RSI']
-        df_final = pd.DataFrame(data=data, columns=columns)
-        df_final = df_final[df_final['Cruzamento'] != '-']
-        df_final = df_final[df_final['Volume'] > self.config['volume >']]
-        
-        # Exibição de resultado
-        os.system(command='cls' if os.name == 'nt' else 'clear')
-        console.print(f"[[bold white]{time()}[/]] -> [[bold green]Resultado[/]]:\n\n{str(df_final) if not df_final.empty else "[red]Tabela vázia (Nemhuma oportunidade de investimento encontrada)[/]"}\n")
-        
-        if save_file:
-            self.save_as_file(df=df_final)
 
-    def rsi(self, df: pd.DataFrame):
+        df_final = self.create_final_dataframe(data)
+        self.display_results(df_final, save_file)
 
+    def collect_data_for_symbol(self, symbol) -> pd.DataFrame:
+        year_days = 365
+        month_days = 30
+        period = self.config['timeframe']['period']['type']
+        if period == "y":
+            period = year_days * self.config['timeframe']['period']['value']
+        elif period == "m":
+            period = month_days * self.config['timeframe']['period']['value']
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=period)
+        end_date = end_date.strftime(format='%Y-%m-%d')
+        start_date = start_date.strftime(format='%Y-%m-%d')
+        return YfScraper(
+            symbol=symbol,
+            start_date=start_date,
+            end_date=end_date,
+            interval=self.config['timeframe']['interval']
+        ).collect_data()
+
+    def calculate_rsi(self, df: pd.DataFrame) -> float:
         period = self.config['rsi']
 
         def rma(x, n, y0):
@@ -106,8 +83,8 @@ class LuxScanner:
         rsi = round(df['rsi'][-1:].values[0], 2)
        
         return rsi
-    
-    def crossover(self, df: pd.DataFrame):
+
+    def calculate_crossover(self, df: pd.DataFrame) -> tuple:
         # Valores dos periodos
         short_period = self.config['crossover']['short_period']
         long_period = self.config['crossover']['long_period']
@@ -143,8 +120,8 @@ class LuxScanner:
             
         else:
             return "-", "-", "-"
-    
-    def cycle(self, df: pd.DataFrame):
+
+    def calculate_cycle(self, df: pd.DataFrame) -> str:
         short_period = self.config['cycle']['short_period']
         long_period = self.config['cycle']['long_period']
             
@@ -168,17 +145,25 @@ class LuxScanner:
         elif last_close < last_sma_short and last_close < last_sma_long and last_sma_short > last_sma_long: return "Fase de distribuição"
         elif last_close < last_sma_short and last_close < last_sma_long and last_sma_short < last_sma_long: return "Fase baixista"
 
-        else: return "-"
-        
-    def save_as_file(self, df: pd.DataFrame):
-        # Criando a pasta onde seram salvos os arquivos
+    def create_final_dataframe(self, data) -> pd.DataFrame:
+        columns = ['Ativo', 'Setor', 'Cruzamento', 'Ciclo', 'Volume', 'Confir. Volum.', 'RSI']
+        df_final = pd.DataFrame(data=data, columns=columns)
+        df_final = df_final[df_final['Cruzamento'] != '-']
+        df_final = df_final[df_final['Volume'] > self.config['volume >']]
+        return df_final
+
+    def display_results(self, df_final, save_file) -> None:
+        os.system(command='cls' if os.name == 'nt' else 'clear')
+        console.print(f"[[bold white]{self.time()}[/]] -> [[bold green]Resultado[/]]:\n\n{str(df_final) if not df_final.empty else "[red]Tabela vazia (Nenhuma oportunidade de investimento encontrada)[/]"}\n")
+        if save_file:
+            self.save_as_file(df=df_final)
+
+    def save_as_file(self, df: pd.DataFrame) -> None:
         save_folder = self.config['save_folder']
         try:
             os.mkdir(path=save_folder)
-        
         except FileExistsError:
             pass
-        
-        filename = f'{save_folder}/Relatório de opções de investimento ({date()}).xlsx'
+        filename = f'{save_folder}/Relatório de opções de investimento ({self.date()}).xlsx'
         df.to_excel(filename, index=False)
         console.print(f'[[bold yellow]Arquivo excel gerado com o resultado. ([white]{filename}[/])[/]]')

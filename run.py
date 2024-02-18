@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
         else:
             app = LuxScanner()
-            app.colect_data_from_json_file(save_file=True if len(argv) > 1 and '-s' in argv else False)
+            app.collect_data_from_json_file(save_file=True if len(argv) > 1 and '-s' in argv else False)
 
     except KeyboardInterrupt:
         console.print('[[italic bold yellow]Processo encerrado pelo usuário!!![/]]')
