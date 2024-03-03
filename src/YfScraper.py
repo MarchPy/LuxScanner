@@ -26,7 +26,7 @@ class YfScraper:
         content = requests.get(url=url, headers=hdr).text
         df = pd.read_csv(filepath_or_buffer=StringIO(initial_value=content))
         if not df.empty:
-            console.print(f"[[bold green]Dados históricos coletados para o símbolo[/]]")
+            console.print(f"[[bold green]Histórico de preços coletados para o símbolo[/]]")
             return df
         
         else:
@@ -37,12 +37,10 @@ class YfScraper:
 
             return df
     
-    @staticmethod
-    def time():
+    def time(self):
         return datetime.now().strftime(format='%H:%M:%S')
 
-    @staticmethod
-    def convert_data_to_timestamp(start_date, end_date) -> tuple:
+    def convert_data_to_timestamp(self, start_date, end_date) -> tuple:
         start_data_timestamp = int(datetime.strptime(start_date, "%Y-%m-%d").timestamp())
         end_data_timestamp = int(datetime.strptime(end_date, "%Y-%m-%d").timestamp())
         return start_data_timestamp, end_data_timestamp

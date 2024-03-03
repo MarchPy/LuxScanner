@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+import numpy as np
 import pandas as pd
 import requests_cache
 from io import StringIO
@@ -34,6 +35,9 @@ class FundamentusScraper:
 
         with requests_cache.enabled():
             for symbol in symbols:
+                symbol = symbol.upper()
+                console.print(f'[[green]Coletando dados fundamentalistas do ativo[/]] :: {symbol}')
+
                 url = f"http://fundamentus.com.br/detalhes.php?papel={symbol}"
 
                 try:
@@ -41,44 +45,64 @@ class FundamentusScraper:
 
                     tables_html = pd.read_html(io=StringIO(content.text), decimal=',', thousands='.')
                     df_0 = tables_html[0]
-                    df_0 = pd.concat([pd.concat([df_0[0], df_0[2]]), pd.concat([df_0[1], df_0[3]])], axis=1).T
                     df_1 = tables_html[1]
-                    df_1 = pd.concat([pd.concat([df_1[0], df_1[2]]), pd.concat([df_1[1], df_1[3]])], axis=1).T
                     df_2 = tables_html[2]
-                    df_2 = pd.concat([pd.concat([df_2[2], df_2[4]]), pd.concat([df_2[3], df_2[5]])], axis=1).T.drop(columns=0)
                     df_3 = tables_html[3]
-                    df_3 = pd.concat([pd.concat([df_3[0], df_3[2]]), pd.concat([df_3[1], df_3[3]])], axis=1).T.drop(columns=0)
-                    df = pd.concat([df_0, df_1, df_2, df_3], axis=1)
-                    df.columns = df.iloc[0].str.replace(pat='?', repl='')
 
-                    line = df[1:]
+                    df_final = pd.concat(
+                        [
+                            pd.concat([pd.concat([df_0[0], df_0[2]]), pd.concat([df_0[1], df_0[3]])], axis=1).T,
+                            pd.concat([pd.concat([df_1[0], df_1[2]]), pd.concat([df_1[1], df_1[3]])], axis=1).T,
+                            pd.concat([pd.concat([df_2[2], df_2[4]]), pd.concat([df_2[3], df_2[5]])], axis=1).T.drop(columns=0),
+                            pd.concat([pd.concat([df_3[0], df_3[2]]), pd.concat([df_3[1], df_3[3]])], axis=1).T.drop(columns=0)
+                        ], axis=1)
+
+
+                    df_final.columns = df_final.iloc[0].str.replace(pat='?', repl='')
+
+                    line = df_final[1:]
                     if not line.empty:
                         df_fundamentus = pd.concat([df_fundamentus, line])
 
-                    self.console.print(f'[[bold white]{self.time()}[/]] -> [[bold green]Dados coletados para o ativo[/]] :: {symbol}')
-
-                except (ValueError, KeyError, PermissionError): 
+                except (ValueError, IndexError): 
                     pass
-        
-        df_fundamentus.reset_index(drop=True, inplace=True)
+
+        columns_to_drop = ['Cart. de Crédito', 'Depósitos', 'Nro. Ações', 'Últ balanço processado', 'Data últ cot']
+        columns_to_int = ['Vol $ méd (2m)', 'Valor de mercado', 'Valor da firma', 'Ativo Circulante', 'Dív. Bruta', 'Dív. Líquida', 'Patrim. Líq', 'Patrim Líquido']
+        columns_to_float = ['Cotação', 'Min 52 sem', 'Max 52 sem','P/VP', 'FFO/Cota', 'Dividendo/cota', 'VP/Cota', 'P/L', 'P/EBIT', 'PSR', 'LPA', 'Giro Ativos']
+        columns_to_format_float = ['FFO Yield', 'Div. Yield', 'Vacância Média', 'Cap Rate', 'Imóveis/PL do FII', 'Cres. Rec (5a)', 'Marg. Bruta', 'Marg. EBIT', 'Marg. Líquida', 'ROIC', 'ROE']
         df_fundamentus = df_fundamentus.replace(r'^-$', '0', regex=True)
+        df_fundamentus.fillna(0, inplace=True)
 
-        df_fundamentus['Vol $ méd (2m)'] = df_fundamentus['Vol $ méd (2m)'].astype(int)
-        df_fundamentus['P/EBIT'] = df_fundamentus['P/EBIT'].astype(float)
-        df_fundamentus['P/L'] = df_fundamentus['P/L'].astype(float)
-        df_fundamentus['LPA'] = df_fundamentus['LPA'].astype(float)
+        for to_drop in columns_to_drop:
+            try:
+                df_fundamentus.drop(columns=[to_drop], inplace=True)
+            
+            except KeyError:
+                pass
+        
+        for to_int in columns_to_int:
+            try:
+                df_fundamentus[to_int] = df_fundamentus[to_int].astype(np.int64)
 
-        columns_to_fmt = [
-            'Div. Yield', 'Cres. Rec (5a)', 'Marg. Bruta', 'Marg. EBIT',
-            'Marg. Líquida', 'EBIT / Ativo', 'ROIC', 'ROE'
-        ]
+            except KeyError:
+                pass
 
-        for column in columns_to_fmt:
-            df_fundamentus[column] = df_fundamentus[column].astype(str)
-            df_fundamentus[column] = df_fundamentus[column].str.replace('%', '')
-            df_fundamentus[column] = df_fundamentus[column].str.replace('.', '')
-            df_fundamentus[column] = df_fundamentus[column].str.replace(',', '.')
-            df_fundamentus[column] = df_fundamentus[column].astype(float)
+        for to_float in columns_to_float:
+            try:
+                df_fundamentus[to_float] = df_fundamentus[to_float].astype(float)
+
+            except KeyError:
+                pass
+
+        for to_format_float in columns_to_format_float:
+            try:
+                df_fundamentus[to_format_float] = df_fundamentus[to_format_float].str.replace(pat='.', repl='').str.replace(pat=',', repl='.').str.replace(pat='%', repl='').astype(float)
+
+            except KeyError:
+                pass
+
+        df_fundamentus = df_fundamentus.reset_index(drop=True) 
 
         return df_fundamentus
 
