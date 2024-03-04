@@ -45,7 +45,7 @@
         {
             "name": "Bens industriais",
             "status": "True",
-            "symbols": ["WEGE3", "TASA3", "TASA4", "MTSA4", "EMBR3"]
+            "symbols": ["WEGE3", "TASA3", "TASA4", "MTSA4", "EMBR3", "RAIL3"]
         },
         {
             "name": "Consumo ciclíco",
@@ -62,7 +62,7 @@
     "timeframe" : {
         "period" : {
             "type": "y",
-            "value": 1
+            "value": 5
         },
         "interval": "1d"
     },
