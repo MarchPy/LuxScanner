@@ -145,6 +145,8 @@ class LuxScanner:
         elif last_close < last_sma_short and last_close < last_sma_long and last_sma_short > last_sma_long: return "Fase de distribuição"
         elif last_close < last_sma_short and last_close < last_sma_long and last_sma_short < last_sma_long: return "Fase baixista"
 
+        else: return "-"
+
     def create_final_dataframe(self, data) -> pd.DataFrame:
         columns = ['Ativo', 'Preço', 'Var. Perc.', 'Setor', 'Cruzamento', 'Ciclo', 'Volume', 'Confir. Volum.', 'RSI']
         df_final = pd.DataFrame(data=data, columns=columns)
