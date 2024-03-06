@@ -32,7 +32,7 @@ class LuxScanner:
             symbols = sector['symbols']
             if status_collect == "True":
                 for symbol in symbols:
-                    console.print(f"[[bold blue]{self.time()}[/]] -> [Setor: [bold yellow]{sector_name}[/]] [[italic white]Coletando dados do ativo[/]] :: {symbol} -> ", end='')
+                    console.print(f"[[bold blue]{self.time()}[/]] -> [Setor: [bold yellow]{sector_name}[/]]-[[italic white]Coletando dados do ativo[/]] :: {symbol} -> ", end='')
                     df_yf = self.collect_data_for_symbol(symbol)
                     if not df_yf.empty:
                         close = round(df_yf['Close'].iloc[-1], 2)
@@ -134,21 +134,20 @@ class LuxScanner:
         last_sma_short = df[f'SMA_{short_period}'].iloc[-1]
         last_sma_long = df[f'SMA_{long_period}'].iloc[-1]
 
-        # Fazendo o filtro
-        # Lado de compras
+        # Lado de compra
         if last_close > last_sma_short and last_close < last_sma_long and last_sma_short < last_sma_long: return "Fase de recuperação"
         elif last_close > last_sma_short and last_close > last_sma_long and last_sma_short < last_sma_long: return "Fase de acumulação"
-        elif last_close > last_sma_short and last_close > last_sma_long and last_sma_short > last_sma_long: return "Fase altista"
+        elif last_close > last_sma_short and last_close > last_sma_long and last_sma_short > last_sma_long: return "Fase de altista"
 
-        # Lado de vendas
-        elif last_close > last_sma_short and last_close > last_sma_long and last_sma_short > last_sma_long: return "Fase de aviso"
+        # Lado de venda
+        elif last_close < last_sma_short and last_close > last_sma_long and last_sma_short > last_sma_long: return "Fase de aviso"
         elif last_close < last_sma_short and last_close < last_sma_long and last_sma_short > last_sma_long: return "Fase de distribuição"
         elif last_close < last_sma_short and last_close < last_sma_long and last_sma_short < last_sma_long: return "Fase baixista"
 
         else: return "-"
 
     def create_final_dataframe(self, data: list) -> pd.DataFrame:
-        columns = ['Ativo', 'Preço', 'Var. Perc.', 'Setor', 'Cruzamento', 'Ciclo', 'Volume', 'Confir. Volum.', 'RSI']
+        columns = ['Ativo', 'Preço', 'Var. Percentual', 'Setor', 'Cruzamento', 'Ciclo', 'Volume', 'Confir. Volum.', 'RSI']
         df_final = pd.DataFrame(data=data, columns=columns)
         df_final = df_final[df_final['Cruzamento'] != '-']
         df_final = df_final[df_final['Volume'] > self.__settings['volume >']]
