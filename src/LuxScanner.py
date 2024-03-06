@@ -147,17 +147,17 @@ class LuxScanner:
 
         else: return "-"
 
-    def create_final_dataframe(self, data) -> pd.DataFrame:
+    def create_final_dataframe(self, data: list) -> pd.DataFrame:
         columns = ['Ativo', 'Preço', 'Var. Perc.', 'Setor', 'Cruzamento', 'Ciclo', 'Volume', 'Confir. Volum.', 'RSI']
         df_final = pd.DataFrame(data=data, columns=columns)
         df_final = df_final[df_final['Cruzamento'] != '-']
         df_final = df_final[df_final['Volume'] > self.__settings['volume >']]
         return df_final
 
-    def display_results(self, df_final, save_file) -> None:
+    def display_results(self, df_final: pd.DataFrame, save_file: bool) -> None:
         # os.system(command='cls' if os.name == 'nt' else 'clear')
 
-        console.print(f"\n\n[[bold white]{self.time()}[/]] -> [[bold green]Resultado[/]]:\n\n{str(df_final) if not df_final.empty else "[red](Nenhuma oportunidade de investimento encontrada!)[/]"}\n")
+        console.print(f"\n\n[[bold white]{self.time()}[/]] -> [[bold green]Resultado[/]]:\n\n{df_final.to_string(index=False) if not df_final.empty else "[red](Nenhuma oportunidade de investimento encontrada!)[/]"}\n")
         if save_file:
             self.save_as_file(df=df_final)
 
