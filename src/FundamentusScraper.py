@@ -33,7 +33,7 @@ class FundamentusScraper:
             'Accept-Encoding': 'gzip, deflate',
         }
 
-        with requests_cache.enabled():
+        with requests_cache.enabled('cache.db'):
             for symbol in symbols:
                 symbol = symbol.upper()
                 console.print(f'[[green]Coletando dados fundamentalistas do ativo[/]] :: {symbol}')
@@ -57,7 +57,6 @@ class FundamentusScraper:
                             pd.concat([pd.concat([df_3[0], df_3[2]]), pd.concat([df_3[1], df_3[3]])], axis=1).T.drop(columns=0)
                         ], axis=1)
 
-
                     df_final.columns = df_final.iloc[0].str.replace(pat='?', repl='')
 
                     line = df_final[1:]
@@ -69,7 +68,7 @@ class FundamentusScraper:
 
         columns_to_drop = ['Cart. de Crédito', 'Depósitos', 'Nro. Ações', 'Últ balanço processado', 'Data últ cot']
         columns_to_int = ['Vol $ méd (2m)', 'Valor de mercado', 'Valor da firma', 'Ativo Circulante', 'Dív. Bruta', 'Dív. Líquida', 'Patrim. Líq', 'Patrim Líquido']
-        columns_to_float = ['Cotação', 'Min 52 sem', 'Max 52 sem','P/VP', 'FFO/Cota', 'Dividendo/cota', 'VP/Cota', 'P/L', 'P/EBIT', 'PSR', 'LPA', 'Giro Ativos']
+        columns_to_float = ['Cotação', 'Min 52 sem', 'Max 52 sem', 'P/VP', 'FFO/Cota', 'Dividendo/cota', 'VP/Cota', 'P/L', 'P/EBIT', 'PSR', 'LPA', 'Giro Ativos']
         columns_to_format_float = ['FFO Yield', 'Div. Yield', 'Vacância Média', 'Cap Rate', 'Imóveis/PL do FII', 'Cres. Rec (5a)', 'Marg. Bruta', 'Marg. EBIT', 'Marg. Líquida', 'ROIC', 'ROE']
         df_fundamentus = df_fundamentus.replace(r'^-$', '0', regex=True)
         df_fundamentus.fillna(0, inplace=True)

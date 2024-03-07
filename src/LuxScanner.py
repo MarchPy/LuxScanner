@@ -89,7 +89,7 @@ class LuxScanner:
         short_period = self.__settings['crossover']['short_period']
         long_period = self.__settings['crossover']['long_period']
 
-        # Calculando as médias exponencial/não exponencial
+        # Calculando as médias exponencial / não exponencial
         if self.__settings['crossover']['exponential'] == "True":
             df[f'MM_{short_period}'] = df['Close'].ewm(span=short_period).mean()
             df[f'MM_{long_period}'] = df['Close'].ewm(span=long_period).mean()
@@ -135,16 +135,22 @@ class LuxScanner:
         last_sma_long = df[f'SMA_{long_period}'].iloc[-1]
 
         # Lado de compra
-        if last_close > last_sma_short and last_close < last_sma_long and last_sma_short < last_sma_long: return "Fase de recuperação"
-        elif last_close > last_sma_short and last_close > last_sma_long and last_sma_short < last_sma_long: return "Fase de acumulação"
-        elif last_close > last_sma_short and last_close > last_sma_long and last_sma_short > last_sma_long: return "Fase de altista"
+        if last_sma_short < last_close < last_sma_long and last_sma_short < last_sma_long:
+            return "Fase de recuperação"
+        elif last_close > last_sma_short and last_close > last_sma_long > last_sma_short:
+            return "Fase de acumulação"
+        elif last_close > last_sma_short > last_sma_long and last_close > last_sma_long:
+            return "Fase de altista"
 
         # Lado de venda
-        elif last_close < last_sma_short and last_close > last_sma_long and last_sma_short > last_sma_long: return "Fase de aviso"
-        elif last_close < last_sma_short and last_close < last_sma_long and last_sma_short > last_sma_long: return "Fase de distribuição"
-        elif last_close < last_sma_short and last_close < last_sma_long and last_sma_short < last_sma_long: return "Fase baixista"
-
-        else: return "-"
+        elif last_sma_short > last_close > last_sma_long and last_sma_short > last_sma_long:
+            return "Fase de aviso"
+        elif last_close < last_sma_short and last_close < last_sma_long < last_sma_short:
+            return "Fase de distribuição"
+        elif last_close < last_sma_short < last_sma_long and last_close < last_sma_long:
+            return "Fase baixista"
+        else:
+            return "-"
 
     def create_final_dataframe(self, data: list) -> pd.DataFrame:
         columns = ['Ativo', 'Preço', 'Var. Percentual', 'Setor', 'Cruzamento', 'Ciclo', 'Volume', 'Confir. Volum.', 'RSI']

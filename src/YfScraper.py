@@ -9,7 +9,7 @@ console = Console()
 
 
 class YfScraper:
-    def __init__(self, symbol: str, start_date: int, end_date: int, interval: str) -> None:
+    def __init__(self, symbol: str, start_date: str, end_date: str, interval: str) -> None:
         self.symbol = symbol
         self.interval = interval
         self.start_date_timestamp, self.end_date_timestamp = self.convert_data_to_timestamp(
@@ -40,8 +40,7 @@ class YfScraper:
     def time(self):
         return datetime.now().strftime(format='%H:%M:%S')
 
-    def convert_data_to_timestamp(self, start_date, end_date) -> tuple:
+    def convert_data_to_timestamp(self, start_date: str, end_date: str) -> tuple:
         start_data_timestamp = int(datetime.strptime(start_date, "%Y-%m-%d").timestamp())
         end_data_timestamp = int(datetime.strptime(end_date, "%Y-%m-%d").timestamp())
         return start_data_timestamp, end_data_timestamp
-
