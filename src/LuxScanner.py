@@ -15,6 +15,7 @@ class LuxScanner:
         try:
             with open(file='config/settings.json', mode='r', encoding='utf-8') as file_obj:
                 self.__settings = json.load(file_obj)
+
         except FileNotFoundError:
             console.print(f"[[bold red]Arquivo de configuração não encontrado.[/]]")
 
@@ -40,7 +41,8 @@ class LuxScanner:
                         rsi = self.calculate_rsi(df=df_yf)
                         crossover, volume, check_volume = self.calculate_crossover(df=df_yf)
                         cycle = self.calculate_cycle(df=df_yf)
-                        data.append([symbol, close, pc, sector_name, crossover, cycle, volume, check_volume, rsi])
+                        macd, signal = self.calculate_macd(df=df_yf)
+                        data.append([symbol, close, pc, sector_name, cycle, crossover, volume, check_volume, rsi, macd, signal])
 
         df_final = self.create_final_dataframe(data)
         self.display_results(df_final, save_file)
@@ -90,7 +92,7 @@ class LuxScanner:
         long_period = self.__settings['crossover']['long_period']
 
         # Calculando as médias exponencial / não exponencial
-        if self.__settings['crossover']['exponential'] == "True":
+        if self.__settings['crossover']['exponential'] == True:
             df[f'MM_{short_period}'] = df['Close'].ewm(span=short_period).mean()
             df[f'MM_{long_period}'] = df['Close'].ewm(span=long_period).mean()
 
@@ -140,7 +142,7 @@ class LuxScanner:
         elif last_close > last_sma_short and last_close > last_sma_long > last_sma_short:
             return "Fase de acumulação"
         elif last_close > last_sma_short > last_sma_long and last_close > last_sma_long:
-            return "Fase de altista"
+            return "Fase altista"
 
         # Lado de venda
         elif last_sma_short > last_close > last_sma_long and last_sma_short > last_sma_long:
@@ -152,15 +154,28 @@ class LuxScanner:
         else:
             return "-"
 
+    def calculate_macd(self, df: pd.DataFrame):
+        period_ema1 = self.__settings['macd']['short_period']
+        period_ema2 = self.__settings['macd']['long_period']
+        period_signal = self.__settings['macd']['signal']
+
+        df['EMA1'] = df['Close'].ewm(span=period_ema1, min_periods=period_ema1-1).mean()
+        df['EMA2'] = df['Close'].ewm(span=period_ema2, min_periods=period_ema2-1).mean()
+        df['MACD'] = df['EMA1'] - df['EMA2']
+        df['Signal'] = df['MACD'].ewm(span=period_signal, min_periods=period_signal-1).mean()
+
+        return [round(df['MACD'].iloc[value], 2) for value in range(-4, 0)], [round(df['Signal'].iloc[value], 2) for value in range(-4, 0)]
+    
     def create_final_dataframe(self, data: list) -> pd.DataFrame:
-        columns = ['Ativo', 'Preço', 'Var. Percentual', 'Setor', 'Cruzamento', 'Ciclo', 'Volume', 'Confir. Volum.', 'RSI']
+        columns = ['Ativo', 'Preço', 'Var. Percentual', 'Setor', 'Ciclo', 'Cruzamento', 'Volume', 'Confir. Volum.', 'RSI', 'MACD', 'Sinal']
         df_final = pd.DataFrame(data=data, columns=columns)
         df_final = df_final[df_final['Cruzamento'] != '-']
         df_final = df_final[df_final['Volume'] > self.__settings['volume >']]
+        df_final = df_final.sort_values(by='Ciclo', ascending=True)
         return df_final
 
     def display_results(self, df_final: pd.DataFrame, save_file: bool) -> None:
-        # os.system(command='cls' if os.name == 'nt' else 'clear')
+        os.system(command='cls' if os.name == 'nt' else 'clear')
 
         console.print(f"\n\n[[bold white]{self.time()}[/]] -> [[bold green]Resultado[/]]:\n\n{df_final.to_string(index=False) if not df_final.empty else "[red](Nenhuma oportunidade de investimento encontrada!)[/]"}\n")
         if save_file:

@@ -68,7 +68,7 @@
     },
 
     "crossover" : {
-        "exponential" : "True",
+        "exponential" : true,
         "short_period" : 9,
         "long_period" : 21
     },
@@ -76,6 +76,13 @@
     "cycle": {
         "short_period": 50,
         "long_period": 200
+    },
+
+    "macd": {
+        "short_period": 12,
+        "long_period": 26,
+        "signal": 9
+
     },
 
     "rsi": 14,

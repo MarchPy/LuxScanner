@@ -1,4 +1,5 @@
 import requests
+import requests_cache
 import pandas as pd
 from io import StringIO
 from datetime import datetime
@@ -23,7 +24,10 @@ class YfScraper:
         }
 
         url = f"https://query1.finance.yahoo.com/v7/finance/download/{self.symbol}.SA?period1={self.start_date_timestamp}&period2={self.end_date_timestamp}&interval={self.interval}"
-        content = requests.get(url=url, headers=hdr).text
+        
+        with requests_cache.enabled('config/cache.db'):
+            content = requests.get(url=url, headers=hdr).text
+
         df = pd.read_csv(filepath_or_buffer=StringIO(initial_value=content))
         if not df.empty:
             console.print(f"[[bold green]Histórico de preços coletados para o símbolo[/]]")
