@@ -2,6 +2,7 @@ import os
 import json
 import numpy as np
 import pandas as pd
+from time import sleep
 from rich.console import Console
 from src.YfScraper import YfScraper
 from datetime import datetime, timedelta
@@ -18,11 +19,13 @@ class LuxScanner:
 
         except FileNotFoundError:
             console.print(f"[[bold red]Arquivo de configuração não encontrado.[/]]")
-
-    def time(self) -> str:
+    
+    @staticmethod
+    def __time() -> str:
         return datetime.now().strftime(format='%H:%M:%S')
-
-    def date(self) -> str:
+    
+    @staticmethod
+    def __date() -> str:
         return datetime.now().strftime(format='%d-%m-%Y')
 
     def collect_data_from_json_file(self, save_file=False) -> None:
@@ -33,7 +36,7 @@ class LuxScanner:
             symbols = sector['symbols']
             if status_collect == "True":
                 for symbol in symbols:
-                    console.print(f"[[bold blue]{self.time()}[/]] -> [Setor: [bold yellow]{sector_name}[/]]-[[italic white]Coletando dados do ativo[/]] :: {symbol} -> ", end='')
+                    console.print(f"[[bold blue]{self.__time()}[/]] -> [Setor: [bold yellow]{sector_name}[/]]-[[italic white]Coletando dados do ativo[/]] :: {symbol} -> ", end='')
                     df_yf = self.collect_data_for_symbol(symbol)
                     if not df_yf.empty:
                         close = round(df_yf['Close'].iloc[-1], 2)
@@ -177,9 +180,11 @@ class LuxScanner:
     def display_results(self, df_final: pd.DataFrame, save_file: bool) -> None:
         os.system(command='cls' if os.name == 'nt' else 'clear')
 
-        console.print(f"\n\n[[bold white]{self.time()}[/]] -> [[bold green]Resultado[/]]:\n\n{df_final.to_string(index=False) if not df_final.empty else "[red](Nenhuma oportunidade de investimento encontrada!)[/]"}\n")
+        console.print(f"\n\n[[bold white]{self.__time()}[/]] -> [[bold green]Resultado[/]]:\n\n{df_final.to_string(index=False) if not df_final.empty else "[red](Nenhuma oportunidade de investimento encontrada!)[/]"}\n")
         if save_file:
             self.save_as_file(df=df_final)
+
+        sleep(5)
 
     def save_as_file(self, df: pd.DataFrame) -> None:
         save_folder = self.__settings['save_folder']
@@ -187,7 +192,7 @@ class LuxScanner:
             os.mkdir(path=save_folder)
         except FileExistsError:
             pass
-        filename = f'{save_folder}/Relatório de opções de investimento ({self.date()}).xlsx'
+        filename = f'{save_folder}/Relatório de opções de investimento ({self.__date()}).xlsx'
         df.to_excel(filename, index=False)
         console.print(f'[[bold yellow]Arquivo excel gerado com o resultado. ([white]{filename}[/])[/]]')
 
