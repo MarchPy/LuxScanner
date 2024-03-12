@@ -184,7 +184,8 @@ class LuxScanner:
         if save_file:
             self.save_as_file(df=df_final)
 
-        sleep(5)
+        console.input('[bold yellow]Precione qualquer tecla para encerrar o programa. [/]')
+
 
     def save_as_file(self, df: pd.DataFrame) -> None:
         save_folder = self.__settings['save_folder']
