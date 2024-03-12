@@ -82,11 +82,9 @@
         "short_period": 12,
         "long_period": 26,
         "signal": 9
-
     },
 
     "rsi": 14,
     "volume >": 200000,
     "save_folder": "resultados"
-
 }
